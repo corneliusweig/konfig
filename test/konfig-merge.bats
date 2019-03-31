@@ -32,47 +32,49 @@ load common
   run ${COMMAND} --help
   echo "$output"
   [ "$status" -eq 0 ]
+  [[ "$output" = "USAGE"* ]]
 }
 
 @test "-h should not fail" {
   run ${COMMAND} -h
   echo "$output"
   [ "$status" -eq 0 ]
+  [[ "$output" = "USAGE"* ]]
 }
 
-@test "merge raw: three configs" {
-  run ${COMMAND} testdata/config-{flat,non-flat,passwd}
+@test "no arguments given" {
+  run ${COMMAND}
+  echo "$output"
+  [ "$status" -eq 0 ]
+  [[ "$output" = "USAGE"* ]]
+}
+
+@test "merge --preserve-structure: three configs" {
+  run ${COMMAND} --preserve-structure testdata/config-{flat,non-flat,passwd}
   echo "$output"
   [ "$status" -eq 0 ]
   [[ $(check_fixture 'testdata/config-multiple' "$output") = 'same' ]]
 }
 
-@test "merge raw: not enough arguments" {
-  run ${COMMAND} testdata/config-flat
+@test "merge -p: not enough arguments" {
+  run ${COMMAND} -p testdata/config-flat
   echo "$output"
   [ "$status" -eq 1 ]
   [[ "$output" = "error: not enough arguments"* ]]
 }
 
-@test "merge flat: three configs" {
-  run ${COMMAND} -f testdata/config-{flat,non-flat,passwd}
+@test "vanilla merge: three configs" {
+  run ${COMMAND} testdata/config-{flat,non-flat,passwd}
   echo "$output"
   [ "$status" -eq 0 ]
   [[ $(check_fixture 'testdata/config-multiple-flat' "$output") = 'same' ]]
 }
 
-@test "merge flat: single config" {
-  run ${COMMAND} --flatten testdata/config-multiple
+@test "vanilla merge: single config" {
+  run ${COMMAND} testdata/config-multiple
   echo "$output"
   [ "$status" -eq 0 ]
   [[ $(check_fixture 'testdata/config-multiple-flat' "$output") = 'same' ]]
-}
-
-@test "merge flat: not enough arguments" {
-  run ${COMMAND} -f
-  echo "$output"
-  [ "$status" -eq 1 ]
-  [[ "$output" = "error: not enough arguments"* ]]
 }
 
 @test "extracting yields original config - I" {

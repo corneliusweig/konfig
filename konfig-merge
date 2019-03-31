@@ -24,11 +24,12 @@ SELF_CMD="$0"
 usage() {
   cat <<'EOF'
 USAGE:
-  konfig-merge <CONF1> <CONF2> [<CONF3>..]       : merge multiple kubeconfigs
-  konfig-merge -f,--flatten <CONF1> [<CONF2>..]  : merge and flatten kubeconfigs
-  konfig-merge -e,--extract <CONTEXT> [<CONFIG>] : extract kubeconfig for given context
+  konfig-merge [<CONFIG>..]                         : merge multiple kubeconfigs
+  konfig-merge -e,--extract <CONTEXT> [<CONFIG>]    : extract kubeconfig for given context
+  konfig-merge -p,--preserve-structure [<CONFIG>..] : merge and flatten kubeconfigs
+      CAVEAT: -p mode will break file links with relative paths
 
-  konfig-merge -h,--help                         : show this message
+  konfig-merge -h,--help                            : show this message
 EOF
 }
 
@@ -70,23 +71,19 @@ main() {
     extract_context "${@:2}"
   elif [[ "${1}" == '-h' || "${1}" == '--help' ]]; then
     usage
-  elif [[ "${1}" == '-f' || "${1}" == '--flatten' ]]; then
-    if [[ "$#" -lt 2 ]]; then
+  elif [[ "${1}" == '-p' || "${1}" == '--preserve-structure' ]]; then
+    if [[ "$#" -lt 3 ]]; then
       echo "error: not enough arguments" >&2
       usage
       exit 1
     fi
-    merge_flat "${@:2}"
+    merge_raw "${@:2}"
   elif [[ "${1}" =~ ^-(.*) ]]; then
     echo "error: unrecognized flag \"${1}\"" >&2
     usage
     exit 1
-  elif [[ "$#" -gt 1 ]]; then
-    merge_raw "${@}"
   else
-    echo "error: not enough arguments" >&2
-    usage
-    exit 1
+    merge_flat "${@}"
   fi
 }
 
