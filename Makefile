@@ -22,7 +22,7 @@ ASSETS:=konfig-merge LICENSE
 %.gz: %
 	gzip --best -f $<
 
-$(OUTPUTDIR)/bundle.tar: konfig-merge LICENSE $(OUTPUTDIR)
+$(OUTPUTDIR)/bundle.tar: $(ASSETS) $(OUTPUTDIR)
 	tar cf $@ $(ASSETS)
 
 $(OUTPUTDIR):

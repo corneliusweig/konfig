@@ -8,11 +8,9 @@
 ## Building & Testing
 
 This repository uses [bats](https://github.com/sstephenson/bats) for testing.
-
-To run the tests, do
+To run the tests, install `bats`, then
 ```bash
-cd test
-bats konfig-merge.bats
+make test
 ```
 
 ## Pull Request Checklist
