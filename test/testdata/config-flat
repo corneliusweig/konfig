@@ -1,0 +1,19 @@
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: X19kdW1teS1jYS5jcnRfX2RhdGFfXwo=
+    server: cluster.flat
+  name: config-flat
+contexts:
+- context:
+    cluster: config-flat
+    user: config-flat
+  name: config-flat
+current-context: config-flat
+kind: Config
+preferences: {}
+users:
+- name: config-flat
+  user:
+    client-certificate-data: X19kdW1teS1jbGllbnQuY3J0X19kYXRhX18K
+    client-key-data: X19kdW1teS1jbGllbnQua2V5X19kYXRhX18K
