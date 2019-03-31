@@ -40,15 +40,36 @@ load common
   [ "$status" -eq 0 ]
 }
 
-@test "combine three configs" {
+@test "merge raw: three configs" {
   run ${COMMAND} testdata/config-{flat,non-flat,passwd}
   echo "$output"
   [ "$status" -eq 0 ]
   [[ $(check_fixture 'testdata/config-multiple' "$output") = 'same' ]]
 }
 
-@test "combine, not enough arguments" {
+@test "merge raw: not enough arguments" {
   run ${COMMAND} testdata/config-flat
+  echo "$output"
+  [ "$status" -eq 1 ]
+  [[ "$output" = "error: not enough arguments"* ]]
+}
+
+@test "merge flat: three configs" {
+  run ${COMMAND} -f testdata/config-{flat,non-flat,passwd}
+  echo "$output"
+  [ "$status" -eq 0 ]
+  [[ $(check_fixture 'testdata/config-multiple-flat' "$output") = 'same' ]]
+}
+
+@test "merge flat: single config" {
+  run ${COMMAND} --flatten testdata/config-multiple
+  echo "$output"
+  [ "$status" -eq 0 ]
+  [[ $(check_fixture 'testdata/config-multiple-flat' "$output") = 'same' ]]
+}
+
+@test "merge flat: not enough arguments" {
+  run ${COMMAND} -f
   echo "$output"
   [ "$status" -eq 1 ]
   [[ "$output" = "error: not enough arguments"* ]]
