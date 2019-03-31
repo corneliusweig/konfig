@@ -19,8 +19,6 @@
 set -eou pipefail
 IFS=$':\n\t'
 
-SELF_CMD="$0"
-
 usage() {
   cat <<'EOF'
 USAGE:
