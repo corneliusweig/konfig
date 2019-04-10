@@ -34,6 +34,7 @@ konfig-merge -e minikube ~/.kube/other > minikube.config
 
 ## Installation
 There are several ways to install `konfig-merge`.
+<!--
 The recommended installation method is via `krew`.
 
 ### Via krew
@@ -43,7 +44,8 @@ Then installation is as simple as
 ```bash
 kubectl krew install config-merge
 ```
-The plugin will be available as `kubectl config-merge`, see [doc/USAGE](doc/USAGE.md#usage) for further details.
+The plugin will be available as `kubectl get-all`, see [doc/USAGE](doc/USAGE.md) for further details.
+-->
 
 ### Manual
 When using the binaries for installation, also have a look at [USAGE](#Usage).
