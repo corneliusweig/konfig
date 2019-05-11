@@ -53,10 +53,10 @@ EXAMPLES
   Export ctx1 and ctx2 into combined.yaml
     $ konfig export -k ~/.kube/config -k k3s.yaml ctx1 ctx2 > combined.yaml
 
-  Export merge two configs
-    $ konfig export ~/.kube/config k3s.yaml > merged-and-flattened
+  Merge two configs
+    $ konfig merge ~/.kube/config k3s.yaml > merged-and-flattened
     or
-    $ konfig export -p ~/.kube/config k3s.yaml > merged-not-flattened
+    $ konfig merge -p ~/.kube/config k3s.yaml > merged-not-flattened
 
 EOF
 }
