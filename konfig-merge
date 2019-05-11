@@ -19,11 +19,19 @@
 set -eou pipefail
 IFS=$':\n\t'
 
+declare -a TMPFILES=()
+cleanup() {
+  if [[ "${#TMPFILES[@]}" -gt 0 ]]; then
+    rm -- "${TMPFILES[@]}"
+  fi
+}
+trap cleanup EXIT
+
 usage() {
   cat <<'EOF'
 USAGE:
   konfig-merge [<CONFIG>..]                         : merge multiple kubeconfigs
-  konfig-merge -e,--extract <CONTEXT> [<CONFIG>]    : extract kubeconfig for given context
+  konfig-merge -e,--export <CONTEXT> [<CONFIG>]    : export kubeconfig for given context
   konfig-merge -p,--preserve-structure [<CONFIG>..] : merge and flatten kubeconfigs
       CAVEAT: -p mode will break file links with relative paths
 
@@ -31,21 +39,66 @@ USAGE:
 EOF
 }
 
-merge_raw() {
-  KUBECONFIG="$*" $KUBECTL config view --raw --merge
+error() {
+  echo "error: $1" >&2
+  exit 1
 }
 
-merge_flat() {
-  KUBECONFIG="$*" $KUBECTL config view --flatten --merge
+merge() {
+    if [[ "$1" =~ ^-(.*) && "$1" != '-p' && "$1" != '--preserve-structure' ]]; then
+      error "unrecognized flag \"$1\""
+    elif [[ "$1" == '-p' || "$1" == '--preserve-structure' ]]; then
+      KUBECONFIG="${*:2}" $KUBECTL config view --raw --merge
+    else
+      KUBECONFIG="$*" $KUBECTL config view --flatten --merge
+    fi
 }
 
-extract_context() {
-  local kubeconfig="${2:-}"
-  if [[ -z "$kubeconfig" ]]; then
-    $KUBECTL config view --raw --minify --context="$1"
-  else
-    KUBECONFIG="$kubeconfig" $KUBECTL config view --raw --minify --context="$1"
-  fi
+import_ctx() {
+    if [[ "${1}" =~ -(.*) ]]; then
+      error "unrecognized flag \"$1\""
+    fi
+    local tmpcfg=$(mktemp konfig_XXX)
+    TMPFILES+=( "$tmpcfg" )
+    $KUBECTL config view --raw > "$tmpcfg"
+
+    merge "$tmpcfg" "$@"
+}
+
+export_contexts() {
+    declare -a ctxs=()
+    declare -a cfgs=()
+    declare -a tmpcfgs=()
+    local tmpcfg
+
+    while [[ "$#" -gt 0 ]]; do
+      if [[ "$1" == '--kubeconfig' ]]; then
+        cfgs+=( "${2//,/:}" )
+        shift 2
+      elif [[ "$1" =~ ^-(.*) ]]; then
+        error "unrecognized flag \"$1\""
+      else
+        ctxs+=( "$1" )
+        shift
+      fi
+    done
+
+    if [[ "${#ctxs[@]}" -eq 0 ]]; then
+      error "contexts to export are missing"
+    fi
+
+    for x in "${ctxs[@]}"; do
+      tmpcfg=$(mktemp konfig_XXX)
+      TMPFILES+=( "$tmpcfg" )
+      tmpcfgs+=( "$tmpcfg" )
+      if [[ "${#cfgs[@]}" -eq 0 ]]; then
+        $KUBECTL config view --flatten --minify --context="$x" > "$tmpcfg"
+      else
+        KUBECONFIG="${cfgs[*]}" $KUBECTL config view --flatten --minify --context="$x" > "$tmpcfg"
+      fi
+    done
+
+    merge "${tmpcfgs[@]}"
 }
 
 main() {
@@ -60,29 +113,31 @@ main() {
 
   if [[ "$#" -eq 0 ]]; then
     usage
-  elif [[ "$1" == "-e" || "$1" == '--extract' ]]; then
-    if [[ "$#" -gt 3 ]]; then
-      echo "error: too many arguments" >&2
-      usage
-      exit 1
-    fi
-    extract_context "${@:2}"
-  elif [[ "$1" == '-h' || "$1" == '--help' || "$1" == 'help' ]]; then
-    usage
-  elif [[ "$1" == '-p' || "$1" == '--preserve-structure' ]]; then
-    if [[ "$#" -lt 3 ]]; then
-      echo "error: not enough arguments" >&2
-      usage
-      exit 1
-    fi
-    merge_raw "${@:2}"
-  elif [[ "$1" =~ ^-(.*) ]]; then
-    echo "error: unrecognized flag \"${1}\"" >&2
-    usage
-    exit 1
-  else
-    merge_flat "${@}"
+    return
   fi
+
+  case "$1" in
+  '-h' | '--help' | 'help')
+    usage
+    ;;
+  'export')
+    export_contexts "${@:2}"
+    ;;
+  'import')
+    import_ctx "${@:2}"
+    ;;
+  'merge')
+    merge "${@:2}"
+    ;;
+   -*)
+    usage
+    error "unrecognized flag \"${1}\""
+    ;;
+   *)
+    usage
+    error "unknown command \"$1\""
+  esac
+
 }
 
 main "$@"

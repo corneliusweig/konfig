@@ -57,13 +57,6 @@ load common
   [[ $(check_fixture 'testdata/config123' "$output") = 'same' ]]
 }
 
-@test "merge -p: not enough arguments" {
-  run ${COMMAND} merge -p testdata/config1
-  echo "$output"
-  [[ "$status" -eq 1 ]]
-  [[ "$output" = "error: not enough arguments"* ]]
-}
-
 @test "vanilla merge: three configs" {
   run ${COMMAND} merge testdata/config{1,2,3}
   echo "$output"
@@ -81,35 +74,35 @@ load common
 ####  IMPORT
 
 @test "import single config" {
-  use_config config123
+  use_config config1
   run ${COMMAND} import testdata/config2
   echo "$output"
   [[ "$status" -eq 0 ]]
-  [[ $(check_fixture 'testdata/config12' "$output") = 'same' ]]
+  [[ $(check_fixture 'testdata/config12-flat' "$output") = 'same' ]]
 }
 
 @test "import multiple configs" {
-  use_config config123
+  use_config config1
   run ${COMMAND} import testdata/config2 testdata/config3
   echo "$output"
   [[ "$status" -eq 0 ]]
-  [[ $(check_fixture 'testdata/config123' "$output") = 'same' ]]
+  [[ $(check_fixture 'testdata/config123-flat' "$output") = 'same' ]]
 }
 
 ####  EXPORT
 
-@test "exporting with '--kubeconfig' yields original config" {
+@test "exporting with '--kubeconfig' yields original config - I" {
   run ${COMMAND} export context1 --kubeconfig testdata/config123
   echo "$output"
   [[ "$status" -eq 0 ]]
   [[ $(check_fixture 'testdata/config1' "$output") = 'same' ]]
 }
 
-@test "exporting without '--kubeconfig' yields original config" {
-  run ${COMMAND} export context2 testdata/config123
+@test "exporting with '--kubeconfig' yields original config - II" {
+  run ${COMMAND} export --kubeconfig testdata/config123 context2
   echo "$output"
   [[ "$status" -eq 0 ]]
-  [[ $(check_fixture 'testdata/config2' "$output") = 'same' ]]
+  [[ $(check_fixture 'testdata/config2-flat' "$output") = 'same' ]]
 }
 
 @test "exporting with KUBECONFIG yields original config" {
@@ -121,31 +114,31 @@ load common
 }
 
 @test "exporting with multiple from multiple kubeconfigs - I" {
-  run ${COMMAND} export context2,context3 --kubeconfig testdata/config12,testdata/config3
+  run ${COMMAND} export context2 context3 --kubeconfig testdata/config1,testdata/config3 --kubeconfig testdata/config2
   echo "$output"
   [[ "$status" -eq 0 ]]
-  [[ $(check_fixture 'testdata/config23' "$output") = 'same' ]]
+  [[ $(check_fixture 'testdata/config23-flat' "$output") = 'same' ]]
 }
 
 @test "exporting with multiple from multiple kubeconfigs - II" {
-  run ${COMMAND} export context1,context2 --kubeconfig testdata/config1,testdata/config23
+  run ${COMMAND} export --kubeconfig testdata/config1 context1 --kubeconfig testdata/config23 context2
   echo "$output"
   [[ "$status" -eq 0 ]]
-  [[ $(check_fixture 'testdata/config12' "$output") = 'same' ]]
+  [[ $(check_fixture 'testdata/config12-flat' "$output") = 'same' ]]
 }
 
-@test "export with too many arguments - I" {
-  run ${COMMAND} export foo bar baz
+@test "exporting without any context - I" {
+  run ${COMMAND} export --kubeconfig testdata/config1 --kubeconfig testdata/config23
   echo "$output"
   [[ "$status" -eq 1 ]]
-  [[ "$output" = "error: too many arguments"* ]]
+  [[ "$output" = *"error: contexts to export are missing"* ]]
 }
 
-@test "export with too many arguments - II" {
-  run ${COMMAND} export foo --kubeconfig bar baz
+@test "exporting without any context - I" {
+  run ${COMMAND} export
   echo "$output"
   [[ "$status" -eq 1 ]]
-  [[ "$output" = "error: too many arguments"* ]]
+  [[ "$output" = *"error: contexts to export are missing"* ]]
 }
 
 ####  ERRORS
@@ -164,7 +157,7 @@ load common
   run ${COMMAND} foobar
   echo "$output"
   [[ "$status" -eq 1 ]]
-  [[ "$output" = *"error: unrecognized flag \"-u\""* ]]
+  [[ "$output" = *"error: unknown command \"foobar\""* ]]
 }
 
 @test "unknown flag - export" {

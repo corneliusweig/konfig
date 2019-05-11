@@ -1,0 +1,31 @@
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: X19kdW1teS1jYS5jcnRfX2RhdGFfXwo=
+    server: cluster.non-flat
+  name: config-non-flat
+- cluster:
+    certificate-authority-data: Y2VydGlmaWNhdGUtYXV0aG9yaXR5LWRhdGE=
+    server: cluster.passwd
+  name: config-passwd
+contexts:
+- context:
+    cluster: config-non-flat
+    user: config-non-flat
+  name: context2
+- context:
+    cluster: config-passwd
+    user: config-passwd
+  name: context3
+current-context: context2
+kind: Config
+preferences: {}
+users:
+- name: config-non-flat
+  user:
+    client-certificate-data: X19kdW1teS1jbGllbnQuY3J0X19kYXRhX18K
+    client-key-data: X19kdW1teS1jbGllbnQua2V5X19kYXRhX18K
+- name: config-passwd
+  user:
+    password: not-a-secure-password
+    username: admin
