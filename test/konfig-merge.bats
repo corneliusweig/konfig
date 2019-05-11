@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-COMMAND="$BATS_TEST_DIRNAME/../konfig-merge"
+COMMAND="$BATS_TEST_DIRNAME/../konfig"
 
 load common
 
@@ -24,28 +24,28 @@ load common
   run ${COMMAND} help
   echo "$output"
   [[ "$status" -eq 0 ]]
-  [[ "$output" = "USAGE"* ]]
+  [[ "$output" = "konfig helps to merge"* ]]
 }
 
 @test "--help should not fail" {
   run ${COMMAND} --help
   echo "$output"
   [[ "$status" -eq 0 ]]
-  [[ "$output" = "USAGE"* ]]
+  [[ "$output" = "konfig helps to merge"* ]]
 }
 
 @test "-h should not fail" {
   run ${COMMAND} -h
   echo "$output"
   [[ "$status" -eq 0 ]]
-  [[ "$output" = "USAGE"* ]]
+  [[ "$output" = "konfig helps to merge"* ]]
 }
 
 @test "no arguments given" {
   run ${COMMAND}
   echo "$output"
   [[ "$status" -eq 0 ]]
-  [[ "$output" = "USAGE"* ]]
+  [[ "$output" = "konfig helps to merge"* ]]
 }
 
 ####  MERGE
@@ -99,7 +99,7 @@ load common
 }
 
 @test "exporting with '--kubeconfig' yields original config - II" {
-  run ${COMMAND} export --kubeconfig testdata/config123 context2
+  run ${COMMAND} export -k testdata/config123 context2
   echo "$output"
   [[ "$status" -eq 0 ]]
   [[ $(check_fixture 'testdata/config2-flat' "$output") = 'same' ]]
@@ -114,21 +114,21 @@ load common
 }
 
 @test "exporting with multiple from multiple kubeconfigs - I" {
-  run ${COMMAND} export context2 context3 --kubeconfig testdata/config1,testdata/config3 --kubeconfig testdata/config2
+  run ${COMMAND} split context2 context3 -k testdata/config1,testdata/config3 --kubeconfig testdata/config2
   echo "$output"
   [[ "$status" -eq 0 ]]
   [[ $(check_fixture 'testdata/config23-flat' "$output") = 'same' ]]
 }
 
 @test "exporting with multiple from multiple kubeconfigs - II" {
-  run ${COMMAND} export --kubeconfig testdata/config1 context1 --kubeconfig testdata/config23 context2
+  run ${COMMAND} split -k testdata/config1 context1 --kubeconfig testdata/config23 context2
   echo "$output"
   [[ "$status" -eq 0 ]]
   [[ $(check_fixture 'testdata/config12-flat' "$output") = 'same' ]]
 }
 
 @test "exporting without any context - I" {
-  run ${COMMAND} export --kubeconfig testdata/config1 --kubeconfig testdata/config23
+  run ${COMMAND} export -k testdata/config1 -k testdata/config23
   echo "$output"
   [[ "$status" -eq 1 ]]
   [[ "$output" = *"error: contexts to export are missing"* ]]

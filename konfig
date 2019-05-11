@@ -29,13 +29,35 @@ trap cleanup EXIT
 
 usage() {
   cat <<'EOF'
-USAGE:
-  konfig-merge [<CONFIG>..]                         : merge multiple kubeconfigs
-  konfig-merge -e,--export <CONTEXT> [<CONFIG>]    : export kubeconfig for given context
-  konfig-merge -p,--preserve-structure [<CONFIG>..] : merge and flatten kubeconfigs
-      CAVEAT: -p mode will break file links with relative paths
+konfig helps to merge, split or import kubeconfig files
 
-  konfig-merge -h,--help                            : show this message
+USAGE:
+  konfig merge [--preserve-structure,-p] <CONFIG>..
+     Merge multiple kubeconfigs into one.
+     -p prevents flattening which will make the result less portable.
+
+  konfig import <CONFIG>..
+     Import the given configs into the default kubeconfig (respects KUBECONFIG env var)
+
+  konfig split  <CONTEXT>.. [--kubeconfig,-k <CONFIG>]
+  konfig export <CONTEXT>.. [--kubeconfig,-k <CONFIG>]
+     Export/split off a minimal kubeconfig with the given contexts
+      -k may be repeated or contain a comma-delimited list of input configs.
+         When omitted, export from the default kubeconfig.
+
+EXAMPLES
+
+  Merge new-cfg into the default kubeconfig
+    $ konfig import new-cfg > ~/.kube/config
+
+  Export ctx1 and ctx2 into combined.yaml
+    $ konfig export -k ~/.kube/config -k k3s.yaml ctx1 ctx2 > combined.yaml
+
+  Export merge two configs
+    $ konfig export ~/.kube/config k3s.yaml > merged-and-flattened
+    or
+    $ konfig export -p ~/.kube/config k3s.yaml > merged-not-flattened
+
 EOF
 }
 
@@ -72,7 +94,7 @@ export_contexts() {
     local tmpcfg
 
     while [[ "$#" -gt 0 ]]; do
-      if [[ "$1" == '--kubeconfig' ]]; then
+      if [[ "$1" == '--kubeconfig' || "$1" == '-k' ]]; then
         cfgs+=( "${2//,/:}" )
         shift 2
       elif [[ "$1" =~ ^-(.*) ]]; then
@@ -120,7 +142,7 @@ main() {
   '-h' | '--help' | 'help')
     usage
     ;;
-  'export')
+  'export'|'split')
     export_contexts "${@:2}"
     ;;
   'import')
