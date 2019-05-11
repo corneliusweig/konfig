@@ -60,23 +60,23 @@ main() {
 
   if [[ "$#" -eq 0 ]]; then
     usage
-  elif [[ "${1}" == "-e" || "${1}" == '--extract' ]]; then
+  elif [[ "$1" == "-e" || "$1" == '--extract' ]]; then
     if [[ "$#" -gt 3 ]]; then
       echo "error: too many arguments" >&2
       usage
       exit 1
     fi
     extract_context "${@:2}"
-  elif [[ "${1}" == '-h' || "${1}" == '--help' ]]; then
+  elif [[ "$1" == '-h' || "$1" == '--help' || "$1" == 'help' ]]; then
     usage
-  elif [[ "${1}" == '-p' || "${1}" == '--preserve-structure' ]]; then
+  elif [[ "$1" == '-p' || "$1" == '--preserve-structure' ]]; then
     if [[ "$#" -lt 3 ]]; then
       echo "error: not enough arguments" >&2
       usage
       exit 1
     fi
     merge_raw "${@:2}"
-  elif [[ "${1}" =~ ^-(.*) ]]; then
+  elif [[ "$1" =~ ^-(.*) ]]; then
     echo "error: unrecognized flag \"${1}\"" >&2
     usage
     exit 1
