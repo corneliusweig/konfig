@@ -1,0 +1,31 @@
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: X19kdW1teS1jYS5jcnRfX2RhdGFfXwo=
+    server: cluster.flat
+  name: config-flat
+- cluster:
+    certificate-authority: credentials/dummy-ca.crt
+    server: cluster.non-flat
+  name: config-non-flat
+contexts:
+- context:
+    cluster: config-flat
+    user: config-flat
+  name: context1
+- context:
+    cluster: config-non-flat
+    user: config-non-flat
+  name: context2
+current-context: context1
+kind: Config
+preferences: {}
+users:
+- name: config-flat
+  user:
+    client-certificate-data: X19kdW1teS1jbGllbnQuY3J0X19kYXRhX18K
+    client-key-data: X19kdW1teS1jbGllbnQua2V5X19kYXRhX18K
+- name: config-non-flat
+  user:
+    client-certificate: credentials/dummy-client.crt
+    client-key: credentials/dummy-client.key

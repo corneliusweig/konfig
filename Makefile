@@ -13,7 +13,7 @@
 # limitations under the License.
 
 OUTPUTDIR:=out
-ASSETS:=konfig-merge-krew LICENSE
+ASSETS:=konfig-krew LICENSE
 
 %.sha256: %
 	sha256sum $< > $@
@@ -26,18 +26,18 @@ $(OUTPUTDIR)/bundle.tar: $(ASSETS) $(OUTPUTDIR)
 	tar cf $@ $(ASSETS)
 
 %-krew: %
-	sed 's:konfig-merge:kubectl config-merge:' $< > $@
+	sed 's:konfig:kubectl konfig:' $< > $@
 
 $(OUTPUTDIR):
 	mkdir -p $@
 
 .PHONY: test
 test:
-	cd test && bats konfig-merge.bats
+	cd test && bats konfig.bats
 
 .PHONY: deploy
 deploy: out/bundle.tar.gz.sha256
 
 .PHONY: clean
 clean:
-	$(RM) -r -- $(OUTPUTDIR) konfig-merge-krew
+	$(RM) -r -- $(OUTPUTDIR) konfig-krew

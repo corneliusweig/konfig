@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+
+# Copyright 2019 Cornelius Weig
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[[ -n $DEBUG ]] && set -x
+
+set -eou pipefail
+IFS=$':\n\t'
+
+declare -a TMPFILES=()
+cleanup() {
+  if [[ "${#TMPFILES[@]}" -gt 0 ]]; then
+    rm -- "${TMPFILES[@]}"
+  fi
+}
+trap cleanup EXIT
+
+usage() {
+  cat <<'EOF'
+konfig helps to merge, split or import kubeconfig files
+
+USAGE:
+  konfig merge [--preserve-structure,-p] <CONFIG>..
+     Merge multiple kubeconfigs into one.
+     -p prevents flattening which will make the result less portable.
+
+  konfig import <CONFIG>..
+     Import the given configs into the default kubeconfig (respects KUBECONFIG env var)
+
+  konfig split  <CONTEXT>.. [--kubeconfig,-k <CONFIG>]
+  konfig export <CONTEXT>.. [--kubeconfig,-k <CONFIG>]
+     Export/split off a minimal kubeconfig with the given contexts
+      -k may be repeated or contain a comma-delimited list of input configs.
+         When omitted, export from the default kubeconfig.
+
+EXAMPLES
+
+  Merge new-cfg into the default kubeconfig
+    $ konfig import new-cfg > ~/.kube/config
+
+  Export ctx1 and ctx2 into combined.yaml
+    $ konfig export -k ~/.kube/config -k k3s.yaml ctx1 ctx2 > combined.yaml
+
+  Export merge two configs
+    $ konfig export ~/.kube/config k3s.yaml > merged-and-flattened
+    or
+    $ konfig export -p ~/.kube/config k3s.yaml > merged-not-flattened
+
+EOF
+}
+
+error() {
+  echo "error: $1" >&2
+  exit 1
+}
+
+merge() {
+    if [[ "$1" =~ ^-(.*) && "$1" != '-p' && "$1" != '--preserve-structure' ]]; then
+      error "unrecognized flag \"$1\""
+    elif [[ "$1" == '-p' || "$1" == '--preserve-structure' ]]; then
+      KUBECONFIG="${*:2}" $KUBECTL config view --raw --merge
+    else
+      KUBECONFIG="$*" $KUBECTL config view --flatten --merge
+    fi
+}
+
+import_ctx() {
+    if [[ "${1}" =~ -(.*) ]]; then
+      error "unrecognized flag \"$1\""
+    fi
+    local tmpcfg=$(mktemp konfig_XXX)
+    TMPFILES+=( "$tmpcfg" )
+    $KUBECTL config view --raw > "$tmpcfg"
+
+    merge "$tmpcfg" "$@"
+}
+
+export_contexts() {
+    declare -a ctxs=()
+    declare -a cfgs=()
+    declare -a tmpcfgs=()
+    local tmpcfg
+
+    while [[ "$#" -gt 0 ]]; do
+      if [[ "$1" == '--kubeconfig' || "$1" == '-k' ]]; then
+        cfgs+=( "${2//,/:}" )
+        shift 2
+      elif [[ "$1" =~ ^-(.*) ]]; then
+        error "unrecognized flag \"$1\""
+      else
+        ctxs+=( "$1" )
+        shift
+      fi
+    done
+
+    if [[ "${#ctxs[@]}" -eq 0 ]]; then
+      error "contexts to export are missing"
+    fi
+
+    for x in "${ctxs[@]}"; do
+      tmpcfg=$(mktemp konfig_XXX)
+      TMPFILES+=( "$tmpcfg" )
+      tmpcfgs+=( "$tmpcfg" )
+      if [[ "${#cfgs[@]}" -eq 0 ]]; then
+        $KUBECTL config view --flatten --minify --context="$x" > "$tmpcfg"
+      else
+        KUBECONFIG="${cfgs[*]}" $KUBECTL config view --flatten --minify --context="$x" > "$tmpcfg"
+      fi
+    done
+
+    merge "${tmpcfgs[@]}"
+}
+
+main() {
+  if hash kubectl 2>/dev/null; then
+    KUBECTL=kubectl
+  elif hash kubectl.exe 2>/dev/null; then
+    KUBECTL=kubectl.exe
+  else
+    echo >&2 "kubectl is not installed"
+    exit 1
+  fi
+
+  if [[ "$#" -eq 0 ]]; then
+    usage
+    return
+  fi
+
+  case "$1" in
+  '-h' | '--help' | 'help')
+    usage
+    ;;
+  'export'|'split')
+    export_contexts "${@:2}"
+    ;;
+  'import')
+    import_ctx "${@:2}"
+    ;;
+  'merge')
+    merge "${@:2}"
+    ;;
+   -*)
+    usage
+    error "unrecognized flag \"${1}\""
+    ;;
+   *)
+    usage
+    error "unknown command \"$1\""
+  esac
+
+}
+
+main "$@"
