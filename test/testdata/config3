@@ -8,8 +8,8 @@ contexts:
 - context:
     cluster: config-passwd
     user: config-passwd
-  name: config-passwd
-current-context: config-passwd
+  name: context3
+current-context: context3
 kind: Config
 preferences: {}
 users:

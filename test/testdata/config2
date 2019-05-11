@@ -8,8 +8,8 @@ contexts:
 - context:
     cluster: config-non-flat
     user: config-non-flat
-  name: config-non-flat
-current-context: config-non-flat
+  name: context2
+current-context: context2
 kind: Config
 preferences: {}
 users:

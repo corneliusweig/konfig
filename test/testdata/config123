@@ -16,16 +16,16 @@ contexts:
 - context:
     cluster: config-flat
     user: config-flat
-  name: config-flat
+  name: context1
 - context:
     cluster: config-non-flat
     user: config-non-flat
-  name: config-non-flat
+  name: context2
 - context:
     cluster: config-passwd
     user: config-passwd
-  name: config-passwd
-current-context: config-flat
+  name: context3
+current-context: context1
 kind: Config
 preferences: {}
 users:

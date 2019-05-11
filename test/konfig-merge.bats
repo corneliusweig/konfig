@@ -50,53 +50,53 @@ load common
 }
 
 @test "merge --preserve-structure: three configs" {
-  run ${COMMAND} --preserve-structure testdata/config-{flat,non-flat,passwd}
+  run ${COMMAND} --preserve-structure testdata/config{1,2,3}
   echo "$output"
   [ "$status" -eq 0 ]
-  [[ $(check_fixture 'testdata/config-multiple' "$output") = 'same' ]]
+  [[ $(check_fixture 'testdata/config123' "$output") = 'same' ]]
 }
 
 @test "merge -p: not enough arguments" {
-  run ${COMMAND} -p testdata/config-flat
+  run ${COMMAND} -p testdata/config1
   echo "$output"
   [ "$status" -eq 1 ]
   [[ "$output" = "error: not enough arguments"* ]]
 }
 
 @test "vanilla merge: three configs" {
-  run ${COMMAND} testdata/config-{flat,non-flat,passwd}
+  run ${COMMAND} testdata/config{1,2,3}
   echo "$output"
   [ "$status" -eq 0 ]
-  [[ $(check_fixture 'testdata/config-multiple-flat' "$output") = 'same' ]]
+  [[ $(check_fixture 'testdata/config123-flat' "$output") = 'same' ]]
 }
 
 @test "vanilla merge: single config" {
-  run ${COMMAND} testdata/config-multiple
+  run ${COMMAND} testdata/config123
   echo "$output"
   [ "$status" -eq 0 ]
-  [[ $(check_fixture 'testdata/config-multiple-flat' "$output") = 'same' ]]
+  [[ $(check_fixture 'testdata/config123-flat' "$output") = 'same' ]]
 }
 
 @test "extracting yields original config - I" {
-  run ${COMMAND} -e config-flat testdata/config-multiple
+  run ${COMMAND} -e context1 testdata/config123
   echo "$output"
   [ "$status" -eq 0 ]
-  [[ $(check_fixture 'testdata/config-flat' "$output") = 'same' ]]
+  [[ $(check_fixture 'testdata/config1' "$output") = 'same' ]]
 }
 
 @test "extracting yields original config - II" {
-  run ${COMMAND} --extract config-non-flat testdata/config-multiple
+  run ${COMMAND} --extract context2 testdata/config123
   echo "$output"
   [ "$status" -eq 0 ]
-  [[ $(check_fixture 'testdata/config-non-flat' "$output") = 'same' ]]
+  [[ $(check_fixture 'testdata/config2' "$output") = 'same' ]]
 }
 
 @test "extracting yields original config - III" {
-  use_config config-multiple
-  run ${COMMAND} --extract config-passwd
+  use_config config123
+  run ${COMMAND} --extract context3
   echo "$output"
   [ "$status" -eq 0 ]
-  [[ $(check_fixture 'testdata/config-passwd' "$output") = 'same' ]]
+  [[ $(check_fixture 'testdata/config3' "$output") = 'same' ]]
 }
 
 @test "extract with too many arguments" {
