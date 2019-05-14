@@ -81,6 +81,7 @@ merge() {
 }
 
 import_ctx() {
+    local tmpcfg
     local out=""
     if [[ "${1}" = '--save' || "$1" = '-s' ]]; then
       out="${XDG_CACHE_HOME:-$HOME/.kube}/config"
@@ -88,7 +89,7 @@ import_ctx() {
     elif [[ "${1}" =~ -(.*) ]]; then
       error "unrecognized flag \"$1\""
     fi
-    local tmpcfg=$(mktemp konfig_XXX)
+    tmpcfg=$(mktemp konfig_XXX)
     TMPFILES+=( "$tmpcfg" )
     $KUBECTL config view --flatten > "$tmpcfg"
 
