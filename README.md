@@ -38,7 +38,6 @@ konfig extract minikube docker-for-desctop -k ~/.kube/other,~/dockercfg > local
 
 ## Installation
 There are several ways to install `konfig`.
-<!--
 The recommended installation method is via `krew`.
 
 ### Via krew
@@ -48,8 +47,7 @@ Then installation is as simple as
 ```bash
 kubectl krew install konfig
 ```
-The plugin will be available as `kubectl get-all`, see [doc/USAGE](doc/USAGE.md) for further details.
--->
+The plugin will be available as `kubectl konfig`, see [doc/USAGE](doc/USAGE.md) for further details.
 
 ### Manual
 When using the binaries for installation, also have a look at [USAGE](#Usage).
