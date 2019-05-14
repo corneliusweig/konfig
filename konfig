@@ -47,8 +47,12 @@ USAGE:
 
 EXAMPLES
 
-  Merge new-cfg into the default kubeconfig
-    $ konfig import new-cfg > ~/.kube/config
+  Merge new-cfg with your current kubeconfig
+    $ konfig import new-cfg
+  and save the result to ~/.kube/config
+    $ konfig import --save new-cfg
+  CAVEAT: due to how shells work, the following will lose your current ~/.kube/config
+    WRONG $ konfig import new-cfg > ~/.kube/config
 
   Export ctx1 and ctx2 into combined.yaml
     $ konfig export -k ~/.kube/config -k k3s.yaml ctx1 ctx2 > combined.yaml
@@ -77,14 +81,22 @@ merge() {
 }
 
 import_ctx() {
-    if [[ "${1}" =~ -(.*) ]]; then
+    local out=""
+    if [[ "${1}" = '--save' ]]; then
+      out="${XDG_CACHE_HOME:-$HOME/.kube}/config"
+      shift 1
+    elif [[ "${1}" =~ -(.*) ]]; then
       error "unrecognized flag \"$1\""
     fi
     local tmpcfg=$(mktemp konfig_XXX)
     TMPFILES+=( "$tmpcfg" )
-    $KUBECTL config view --raw > "$tmpcfg"
+    $KUBECTL config view --flatten > "$tmpcfg"
 
-    merge "$tmpcfg" "$@"
+    if [[ -z "$out" ]]; then
+      merge "$tmpcfg" "$@"
+    else
+      merge "$tmpcfg" "$@" > "$out"
+    fi
 }
 
 export_contexts() {
@@ -134,13 +146,13 @@ main() {
   fi
 
   if [[ "$#" -eq 0 ]]; then
-    usage
+    usage | less
     return
   fi
 
   case "$1" in
   '-h' | '--help' | 'help')
-    usage
+    usage | less
     ;;
   'export'|'split')
     export_contexts "${@:2}"

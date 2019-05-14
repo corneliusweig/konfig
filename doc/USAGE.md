@@ -12,9 +12,19 @@ kubectl krew install konfig
 
 ### Import a kubeconfig
 ```bash
+kubectl konfig import --save new-cfg
+```
+Imports the config file `new-cfg` into the default kubeconfig at `~/.kube/config`.
+To show the result without changing your kubeconfig, do
+```bash
+kubectl konfig import new-cfg
+```
+
+CAVEAT: due to how shells work, the following will lose your current `~/.kube/config`
+```bash
+# WRONG, don't do this!
 kubectl konfig import new-cfg > ~/.kube/config
 ```
-Imports the config file `new-cfg` into the default kubeconfig.
 
 ### Merge several kubeconfig files
 ```bash

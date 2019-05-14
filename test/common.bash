@@ -29,6 +29,10 @@ use_config() {
   cp "$BATS_TEST_DIRNAME/testdata/$1" $KUBECONFIG
 }
 
+check_kubeconfig() {
+  diff -U3 "${1}" "${XDG_CACHE_HOME}/config" && echo 'same' || echo 'different'
+}
+
 check_fixture() {
   diff -U3 "${1}" <(echo "${2}") && echo 'same' || echo 'different'
 }

@@ -73,7 +73,7 @@ load common
 
 ####  IMPORT
 
-@test "import single config" {
+@test "import single config and print to stdout" {
   use_config config1
   run ${COMMAND} import testdata/config2
   echo "$output"
@@ -81,12 +81,28 @@ load common
   [[ $(check_fixture 'testdata/config12-flat' "$output") = 'same' ]]
 }
 
-@test "import multiple configs" {
+@test "import multiple configs and print to stdout" {
   use_config config1
   run ${COMMAND} import testdata/config2 testdata/config3
   echo "$output"
   [[ "$status" -eq 0 ]]
   [[ $(check_fixture 'testdata/config123-flat' "$output") = 'same' ]]
+}
+
+@test "import single config" {
+  use_config config1
+  run ${COMMAND} import --save testdata/config2
+  echo "$output"
+  [[ "$status" -eq 0 ]]
+  [[ $(check_kubeconfig 'testdata/config12-flat') = 'same' ]]
+}
+
+@test "import multiple configs" {
+  use_config config1
+  run ${COMMAND} import --save testdata/config2 testdata/config3
+  echo "$output"
+  [[ "$status" -eq 0 ]]
+  [[ $(check_kubeconfig 'testdata/config123-flat') = 'same' ]]
 }
 
 ####  EXPORT
