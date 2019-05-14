@@ -26,7 +26,8 @@ $(OUTPUTDIR)/bundle.tar: $(ASSETS) $(OUTPUTDIR)
 	tar cf $@ $(ASSETS)
 
 %-krew: %
-	sed 's:konfig:kubectl konfig:' $< > $@
+	sed "/cat <<'EOF'/,/^EOF/s:konfig:kubectl konfig:" $< > $@
+	chmod +x $@
 
 $(OUTPUTDIR):
 	mkdir -p $@
