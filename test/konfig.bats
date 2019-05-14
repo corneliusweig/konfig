@@ -99,7 +99,7 @@ load common
 
 @test "import multiple configs" {
   use_config config1
-  run ${COMMAND} import --save testdata/config2 testdata/config3
+  run ${COMMAND} import -s testdata/config2 testdata/config3
   echo "$output"
   [[ "$status" -eq 0 ]]
   [[ $(check_kubeconfig 'testdata/config123-flat') = 'same' ]]

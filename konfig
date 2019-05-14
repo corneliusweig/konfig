@@ -34,19 +34,19 @@ konfig helps to merge, split or import kubeconfig files
 USAGE:
   konfig merge [--preserve-structure,-p] <CONFIG>..
      Merge multiple kubeconfigs into one.
-     -p prevents flattening which will make the result less portable.
+     -p  prevents flattening which will make the result less portable.
 
-  konfig import <CONFIG>..
-     Import the given configs into the default kubeconfig (respects KUBECONFIG env var)
+  konfig import [--save,-s] <CONFIG>..
+     Import the given configs into your current kubeconfig (respects KUBECONFIG env var).
+     -s  writes the result to your ~/.kube/config
 
   konfig split  <CONTEXT>.. [--kubeconfig,-k <CONFIG>]
   konfig export <CONTEXT>.. [--kubeconfig,-k <CONFIG>]
      Export/split off a minimal kubeconfig with the given contexts
-      -k may be repeated or contain a comma-delimited list of input configs.
-         When omitted, export from the default kubeconfig.
+      -k  may be repeated or contain a comma-delimited list of input configs.
+          When omitted, export from the default kubeconfig.
 
-EXAMPLES
-
+EXAMPLES:
   Merge new-cfg with your current kubeconfig
     $ konfig import new-cfg
   and save the result to ~/.kube/config
@@ -82,7 +82,7 @@ merge() {
 
 import_ctx() {
     local out=""
-    if [[ "${1}" = '--save' ]]; then
+    if [[ "${1}" = '--save' || "$1" = '-s' ]]; then
       out="${XDG_CACHE_HOME:-$HOME/.kube}/config"
       shift 1
     elif [[ "${1}" =~ -(.*) ]]; then
