@@ -51,14 +51,14 @@ load common
 ####  MERGE
 
 @test "merge --preserve-structure: three configs" {
-  run ${COMMAND} merge --preserve-structure testdata/config{1,2,3}
+  run ${COMMAND} merge --preserve-structure testdata/config{1,-2,3}
   echo "$output"
   [[ "$status" -eq 0 ]]
   [[ $(check_fixture 'testdata/config123' "$output") = 'same' ]]
 }
 
 @test "vanilla merge: three configs" {
-  run ${COMMAND} merge testdata/config{1,2,3}
+  run ${COMMAND} merge testdata/config{1,-2,3}
   echo "$output"
   [[ "$status" -eq 0 ]]
   [[ $(check_fixture 'testdata/config123-flat' "$output") = 'same' ]]
@@ -75,7 +75,7 @@ load common
 
 @test "import single config and print to stdout" {
   use_config config1
-  run ${COMMAND} import testdata/config2
+  run ${COMMAND} import testdata/config-2
   echo "$output"
   [[ "$status" -eq 0 ]]
   [[ $(check_fixture 'testdata/config12-flat' "$output") = 'same' ]]
@@ -83,7 +83,7 @@ load common
 
 @test "import multiple configs and print to stdout" {
   use_config config1
-  run ${COMMAND} import testdata/config2 testdata/config3
+  run ${COMMAND} import testdata/config-2 testdata/config3
   echo "$output"
   [[ "$status" -eq 0 ]]
   [[ $(check_fixture 'testdata/config123-flat' "$output") = 'same' ]]
@@ -91,7 +91,7 @@ load common
 
 @test "import single config" {
   use_config config1
-  run ${COMMAND} import --save testdata/config2
+  run ${COMMAND} import --save testdata/config-2
   echo "$output"
   [[ "$status" -eq 0 ]]
   [[ $(check_kubeconfig 'testdata/config12-flat') = 'same' ]]
@@ -99,7 +99,7 @@ load common
 
 @test "import multiple configs" {
   use_config config1
-  run ${COMMAND} import -s testdata/config2 testdata/config3
+  run ${COMMAND} import -s testdata/config-2 testdata/config3
   echo "$output"
   [[ "$status" -eq 0 ]]
   [[ $(check_kubeconfig 'testdata/config123-flat') = 'same' ]]
@@ -130,7 +130,7 @@ load common
 }
 
 @test "exporting with multiple from multiple kubeconfigs - I" {
-  run ${COMMAND} split context2 context3 -k testdata/config1,testdata/config3 --kubeconfig testdata/config2
+  run ${COMMAND} split context2 context3 -k testdata/config1,testdata/config3 --kubeconfig testdata/config-2
   echo "$output"
   [[ "$status" -eq 0 ]]
   [[ $(check_fixture 'testdata/config23-flat' "$output") = 'same' ]]
