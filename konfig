@@ -17,7 +17,6 @@
 [[ -n $DEBUG ]] && set -x
 
 set -eou pipefail
-IFS=$':\n\t'
 
 declare -a TMPFILES=()
 cleanup() {
@@ -74,8 +73,10 @@ merge() {
     if [[ "$1" =~ ^-(.*) && "$1" != '-p' && "$1" != '--preserve-structure' ]]; then
       error "unrecognized flag \"$1\""
     elif [[ "$1" == '-p' || "$1" == '--preserve-structure' ]]; then
+      IFS=$':'
       KUBECONFIG="${*:2}" $KUBECTL config view --raw --merge
     else
+      IFS=$':'
       KUBECONFIG="$*" $KUBECTL config view --flatten --merge
     fi
 }
@@ -129,6 +130,7 @@ export_contexts() {
       if [[ "${#cfgs[@]}" -eq 0 ]]; then
         $KUBECTL config view --flatten --minify --context="$x" > "$tmpcfg"
       else
+        IFS=$':'
         KUBECONFIG="${cfgs[*]}" $KUBECTL config view --flatten --minify --context="$x" > "$tmpcfg"
       fi
     done
