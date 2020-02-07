@@ -37,8 +37,8 @@ If you want to preserve the structure and keep credentials separate, use `--pres
 This will extract a minimal kubeconfig with a single context `minikube`:
 ```bash
 # extract context minikube from the default kubeconfig
-kubectl konfig extract minikube > minikube.config
+kubectl konfig export minikube > minikube.config
 
 # extract context minikube and docker-for-desktop from two input configs
-kubectl konfig extract minikube docker-for-desctop -k ~/.kube/other,~/dockercfg > local
+kubectl konfig export minikube docker-for-desctop -k ~/.kube/other,~/dockercfg > local
 ```
