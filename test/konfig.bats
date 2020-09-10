@@ -105,6 +105,22 @@ load common
   [[ $(check_kubeconfig 'testdata/config123-flat') = 'same' ]]
 }
 
+@test "import single config and preserve structure" {
+  use_config config1
+  run ${COMMAND} import --preserve-structure --save testdata/config-2
+  echo "$output"
+  [[ "$status" -eq 0 ]]
+  [[ $(check_fixture 'testdata/config12' "$output") = 'same' ]]
+}
+
+@test "import multiple configs and preserve structure" {
+  use_config config1
+  run ${COMMAND} import -p -s testdata/config-2 testdata/config3
+  echo "$output"
+  [[ "$status" -eq 0 ]]
+  [[ $(check_fixture 'testdata/config123' "$output") = 'same' ]]
+}
+
 ####  EXPORT
 
 @test "exporting with '--kubeconfig' yields original config - I" {
