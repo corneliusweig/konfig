@@ -26,7 +26,7 @@ teardown() {
 }
 
 use_config() {
-  cp "$BATS_TEST_DIRNAME/testdata/$1" $KUBECONFIG
+  cp "$BATS_TEST_DIRNAME/testdata/$1" "$KUBECONFIG"
 }
 
 check_kubeconfig() {
