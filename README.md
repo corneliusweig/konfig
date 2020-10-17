@@ -61,7 +61,8 @@ When using the binaries for installation, also have a look at [USAGE](#Usage).
 #### OSX & Linux
 ```bash
 curl -Lo konfig https://github.com/corneliusweig/konfig/raw/v0.2.0/konfig \
-  chmod +x konfig && sudo mv -i konfig /usr/local/bin
+  && chmod +x konfig \
+  && sudo mv -i konfig /usr/local/bin
 ```
 Feel free to change the `sudo mv` to put `konfig` in some other location from your `$PATH` variable.
 
