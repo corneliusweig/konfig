@@ -110,7 +110,7 @@ load common
   run ${COMMAND} import --preserve-structure --save testdata/config-2
   echo "$output"
   [[ "$status" -eq 0 ]]
-  [[ $(check_fixture 'testdata/config12' "$output") = 'same' ]]
+  [[ $(check_kubeconfig 'testdata/config12') = 'same' ]]
 }
 
 @test "import multiple configs and preserve structure" {
@@ -118,7 +118,7 @@ load common
   run ${COMMAND} import -p -s testdata/config-2 testdata/config3
   echo "$output"
   [[ "$status" -eq 0 ]]
-  [[ $(check_fixture 'testdata/config123' "$output") = 'same' ]]
+  [[ $(check_kubeconfig 'testdata/config123') = 'same' ]]
 }
 
 ####  EXPORT
