@@ -121,6 +121,16 @@ load common
   [[ $(check_kubeconfig 'testdata/config123') = 'same' ]]
 }
 
+@test "failed read of imported config should preserve .kube/config" {
+  use_config config1
+  chmod u-r testdata/config-2
+  run ${COMMAND} import -s /does/not/exist testdata/config-2
+  chmod u+r testdata/config-2
+  echo "$output"
+  [[ "$status" -eq 1 ]]
+  [[ $(check_kubeconfig 'testdata/config1') = 'same' ]]
+}
+
 ####  EXPORT
 
 @test "exporting with '--kubeconfig' yields original config - I" {

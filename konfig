@@ -16,7 +16,7 @@
 
 [[ -n $DEBUG ]] && set -x
 
-set -eou pipefail
+set -eEuo pipefail
 
 declare -a TMPFILES=()
 cleanup() {
@@ -104,6 +104,7 @@ import_ctx() {
     if [[ -z "$out" ]]; then
       merge "$arg" "$tmpcfg" "$@"
     else
+      trap 'mv "$tmpcfg" "$out"' ERR
       merge "$arg" "$tmpcfg" "$@" > "$out"
     fi
 }
