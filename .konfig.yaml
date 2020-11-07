@@ -3,9 +3,9 @@ kind: Plugin
 metadata:
   name: konfig
 spec:
-  version: {{ .TagName }}
+  version: "{{ .TagName }}"
   platforms:
-    - {{ addURIAndSha "https://github.com/corneliusweig/konfig/releases/download/{{ .TagName }}/bundle.tar.gz" .TagName }}
+    - {{addURIAndSha "https://github.com/corneliusweig/konfig/releases/download/{{ .TagName }}/bundle.tar.gz" .TagName | indent 6 }}
       bin: konfig-krew
       files:
         - from: ./konfig-krew
