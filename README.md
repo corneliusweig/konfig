@@ -1,7 +1,7 @@
 # konfig
 
 ![Latest GitHub release](https://img.shields.io/github/release/corneliusweig/konfig.svg)
-![Travis (.org) branch](https://img.shields.io/travis/corneliusweig/konfig/master.svg)
+![GitHub workflow status](https://img.shields.io/github/workflow/status/corneliusweig/konfig/konfig%20CI)
 ![Written in Bash](https://img.shields.io/badge/written%20in-bash-19bb19.svg)
 <!--![GitHub stars](https://img.shields.io/github/stars/corneliusweig/konfig.svg?label=github%20stars)-->
 
