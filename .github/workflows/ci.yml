@@ -1,21 +1,64 @@
+name: konfig CI
 on:
   push:
     branches:
-      - '*'
+    - '*'
+    tags:
+    - 'v*.*.*'
   pull_request:
     branches:
-      - '*'
+    - '*'
 
-name: 'Trigger: Push action'
 
 jobs:
-  shellcheck:
-    name: Shellcheck
+  build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Run ShellCheck
+
+    - name: Check out repo
+      uses: actions/checkout@v2
+
+    - name: Shellcheck
       uses: ludeeus/action-shellcheck@master
       env:
         SHELLCHECK_OPTS: -e SC2155
 
+    - name: Run tests
+      run: |
+         set -euo pipefail
+         sudo add-apt-repository ppa:duggan/bats --yes
+         sudo apt-get update -qq
+         sudo apt-get install -qq bats
+         sudo curl -fsSL -o /usr/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v1.19.2/bin/linux/amd64/kubectl
+         sudo chmod +x /usr/bin/kubectl
+         make test
+
+    - name: Create assets
+      if: contains(github.ref, 'tags')
+      run: make deploy
+
+    - name: Create release
+      if: contains(github.ref, 'tags')
+      uses: actions/create-release@v1
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+    - name: Upload assets
+      if: contains(github.ref, 'tags')
+      uses: svenstaro/upload-release-action@v1-release
+      with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: out/bundle.tar.gz*
+          overwrite: true
+          file_glob: true
+
+    - name: Create PR in krew-index
+      if: contains(github.ref, 'tags')
+      uses: rajatjindal/krew-release-bot@v0.0.36
+      with:
+        krew_template_file: .konfig.yaml
