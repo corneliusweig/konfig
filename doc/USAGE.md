@@ -40,5 +40,5 @@ This will extract a minimal kubeconfig with a single context `minikube`:
 kubectl konfig export minikube > minikube.config
 
 # extract context minikube and docker-for-desktop from two input configs
-kubectl konfig export minikube docker-for-desctop -k ~/.kube/other,~/dockercfg > local
+kubectl konfig export minikube docker-for-desktop -k ~/.kube/other,~/dockercfg > local
 ```
