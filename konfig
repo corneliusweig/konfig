@@ -35,9 +35,10 @@ USAGE:
      Merge multiple kubeconfigs into one.
      -p  prevents flattening which will make the result less portable.
 
-  konfig import [--preserve-structure,-p] [--save,-s] <CONFIG>..
+  konfig import [--preserve-structure,-p] [--save,-s] [--stdin,-i] <CONFIG>..
      Import the given configs into your current kubeconfig (respects KUBECONFIG env var).
      -s  writes the result to your ~/.kube/config
+     -i  import kubeconfig string from stdin
 
   konfig split  <CONTEXT>.. [--kubeconfig,-k <CONFIG>]
   konfig export <CONTEXT>.. [--kubeconfig,-k <CONFIG>]
@@ -84,28 +85,47 @@ merge() {
 }
 
 import_ctx() {
+    declare -a tmpcfgs=()
     local tmpcfg
+    local tmpinputcfg=""
     local out=""
     local arg=""
-    if [[ "$1" == '-p' || "$1" == '--preserve-structure' ]]; then
-      arg="$1"
-      shift
-    fi
-    if [[ "$1" = '--save' || "$1" = '-s' ]]; then
-      out="${XDG_CACHE_HOME:-$HOME/.kube}/config"
-      shift
-    elif [[ "$1" =~ ^-(.*) ]]; then
-      error "unrecognized flag \"$1\""
-    fi
+
     tmpcfg=$(mktemp konfig_XXXXXX)
     TMPFILES+=( "$tmpcfg" )
+    tmpcfgs+=( "$tmpcfg")
+
+    for OPT in "$@"; do
+      case $OPT in
+        -p | --preserve-structure)
+          arg="$1"
+          shift
+          ;;
+        -s | --save)
+          out="${XDG_CACHE_HOME:-$HOME/.kube}/config"
+          shift
+          ;;
+        -i | --stdin)
+          if [[ -p /dev/stdin ]]; then
+            tmpinputcfg=$(mktemp konfig_input_XXXXXX)
+            TMPFILES+=( "$tmpinputcfg" )
+            tmpcfgs+=( "$tmpinputcfg" )
+            cat - > "$tmpinputcfg"
+            shift
+          fi
+          ;;
+        -*)
+          error "unrecognized flag \"$1\""
+          ;;
+      esac
+    done
     $KUBECTL config view --raw > "$tmpcfg"
 
     if [[ -z "$out" ]]; then
-      merge "$arg" "$tmpcfg" "$@"
+      merge "$arg" "${tmpcfgs[@]}" "$@"
     else
       trap 'mv "$tmpcfg" "$out"' ERR
-      merge "$arg" "$tmpcfg" "$@" > "$out"
+      merge "$arg" "${tmpcfgs[@]}" "$@" > "$out"
     fi
 }
 

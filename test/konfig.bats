@@ -121,6 +121,37 @@ load common
   [[ $(check_kubeconfig 'testdata/config123') = 'same' ]]
 }
 
+@test "import single config from stdin and print to stdout" {
+  use_config config1
+  run bash -c "cat testdata/config3 | ${COMMAND} import -i"
+  echo "$output"
+  [[ "$status" -eq 0 ]]
+  [[ $(check_fixture 'testdata/config13-flat' "$output") = 'same' ]]
+}
+
+@test "import single config from stdin" {
+  use_config config1
+  run bash -c "cat testdata/config3 | ${COMMAND} import -i --save"
+  echo "$output"
+  [[ "$status" -eq 0 ]]
+  [[ $(check_kubeconfig 'testdata/config13-flat') = 'same' ]]
+}
+
+@test "import no stdin should preserve .kube/config" {
+  use_config config1
+  run ${COMMAND} import -i --save
+  [[ "$status" -eq 0 ]]
+  [[ $(check_kubeconfig 'testdata/config1') = 'same' ]]
+}
+
+@test "import invalid file from stdin should preserve .kube/config" {
+  use_config config1
+  run bash -c "echo invalid | ${COMMAND} import -i --save"
+  echo "$output"
+  [[ "$status" -eq 1 ]]
+  [[ $(check_kubeconfig 'testdata/config1') = 'same' ]]
+}
+
 @test "failed read of imported config should preserve .kube/config" {
   use_config config1
   chmod u-r testdata/config-2
