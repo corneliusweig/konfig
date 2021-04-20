@@ -26,11 +26,10 @@ jobs:
     - name: Run tests
       run: |
          set -euo pipefail
-         sudo add-apt-repository ppa:duggan/bats --yes
          sudo apt-get update -qq
          sudo apt-get install -qq bats
-         sudo curl -fsSL -o /usr/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v1.19.2/bin/linux/amd64/kubectl
-         sudo chmod +x /usr/bin/kubectl
+         # To make 'no kubectl detected' test work, move kubectl to /usr/local/bin/
+         sudo mv /bin/kubectl /usr/local/bin/kubectl
          make test
 
     - name: Create assets
