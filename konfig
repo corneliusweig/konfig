@@ -178,13 +178,13 @@ main() {
   fi
 
   if [[ "$#" -eq 0 ]]; then
-    usage | less
+    usage
     return
   fi
 
   case "$1" in
   '-h' | '--help' | 'help')
-    usage | less
+    usage
     ;;
   'export'|'split')
     export_contexts "${@:2}"
