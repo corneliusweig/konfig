@@ -81,6 +81,16 @@ load common
   [[ $(check_fixture 'testdata/config12-flat' "$output") = 'same' ]]
 }
 
+@test "import config with -- in name" {
+  use_config config1
+  cp testdata/config-2 testdata/config--2
+  run ${COMMAND} import testdata/config--2
+  rm testdata/config--2
+  echo "$output"
+  [[ "$status" -eq 0 ]]
+  [[ $(check_fixture 'testdata/config12-flat' "$output") = 'same' ]]
+}
+
 @test "import multiple configs and print to stdout" {
   use_config config1
   run ${COMMAND} import testdata/config-2 testdata/config3
@@ -207,7 +217,7 @@ load common
   [[ "$output" = *"error: contexts to export are missing"* ]]
 }
 
-@test "exporting without any context - I" {
+@test "exporting without any context - II" {
   run ${COMMAND} export
   echo "$output"
   [[ "$status" -eq 1 ]]

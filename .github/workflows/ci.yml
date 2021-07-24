@@ -59,6 +59,6 @@ jobs:
 
     - name: Create PR in krew-index
       if: contains(github.ref, 'tags')
-      uses: rajatjindal/krew-release-bot@v0.0.36
+      uses: rajatjindal/krew-release-bot@v0.0.40
       with:
         krew_template_file: .konfig.yaml

@@ -71,7 +71,7 @@ error() {
 }
 
 merge() {
-    if [[ "$1" =~ ^-(.*) && "$1" != '-p' && "$1" != '--preserve-structure' ]]; then
+    if [[ "$1" =~ ^-.+ && "$1" != '-p' && "$1" != '--preserve-structure' ]]; then
       error "unrecognized flag \"$1\""
     else
       IFS=$':\n\t'
@@ -139,7 +139,7 @@ export_contexts() {
       if [[ "$1" == '--kubeconfig' || "$1" == '-k' ]]; then
         cfgs+=( "${2//,/:}" )
         shift 2
-      elif [[ "$1" =~ ^-(.*) ]]; then
+      elif [[ "$1" =~ ^-.+ ]]; then
         error "unrecognized flag \"$1\""
       else
         ctxs+=( "$1" )
