@@ -28,8 +28,9 @@ jobs:
          set -euo pipefail
          sudo apt-get update -qq
          sudo apt-get install -qq bats
-         # To make 'no kubectl detected' test work, move kubectl to /usr/local/bin/
-         sudo mv /bin/kubectl /usr/local/bin/kubectl
+         # To make 'no kubectl detected' test work, place kubectl in /usr/local/bin/
+         sudo curl -fsSL -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v1.21.3/bin/linux/amd64/kubectl
+         sudo chmod +x /usr/local/bin/kubectl
          make test
 
     - name: Create assets
