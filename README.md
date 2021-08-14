@@ -67,4 +67,4 @@ curl -Lo konfig https://github.com/corneliusweig/konfig/raw/v0.2.0/konfig \
 Feel free to change the `sudo mv` to put `konfig` in some other location from your `$PATH` variable.
 
 #### Windows
-Download [konfig](https://github.com/corneliusweig/konfig/raw/v0.2.0/konfig) and put it in your PATH as `konfig.exe`.
+> If you figure out how to run `konfig` on Windows, please send a PR with instructions.
