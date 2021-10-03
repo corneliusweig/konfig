@@ -6,7 +6,7 @@
 <!--![GitHub stars](https://img.shields.io/github/stars/corneliusweig/konfig.svg?label=github%20stars)-->
 
 konfig helps to merge, split or import kubeconfig files
-
+ 
 ## Usage
 
 ### Import a kubeconfig
@@ -60,7 +60,7 @@ When using the binaries for installation, also have a look at [USAGE](#Usage).
 
 #### OSX & Linux
 ```bash
-curl -Lo konfig https://github.com/corneliusweig/konfig/raw/v0.2.0/konfig \
+curl -Lo konfig https://github.com/corneliusweig/konfig/raw/v0.2.6/konfig \
   && chmod +x konfig \
   && sudo mv -i konfig /usr/local/bin
 ```
