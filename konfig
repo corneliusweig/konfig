@@ -102,7 +102,7 @@ import_ctx() {
           shift
           ;;
         -s | --save)
-          out="${XDG_CACHE_HOME:-$HOME/.kube}/config"
+          out="${KUBECONFIG:-${XDG_CACHE_HOME:-$HOME/.kube}/config}"
           shift
           ;;
         -i | --stdin)
