@@ -74,13 +74,14 @@ merge() {
     if [[ "$1" =~ ^-.+ && "$1" != '-p' && "$1" != '--preserve-structure' ]]; then
       error "unrecognized flag \"$1\""
     else
-      IFS=$':\n\t'
-      if [[ "$1" == '-p' || "$1" == '--preserve-structure' ]]; then
-        KUBECONFIG="${*:2}" $KUBECTL config view --raw --merge
-      else
-        KUBECONFIG="$*" $KUBECTL config view --flatten --merge
-      fi
-      IFS=$' \t\n'
+      (
+        IFS=$':\n\t'
+        if [[ "$1" == '-p' || "$1" == '--preserve-structure' ]]; then
+          KUBECONFIG="${*:2}" $KUBECTL config view --raw --merge
+        else
+          KUBECONFIG="$*" $KUBECTL config view --flatten --merge
+        fi
+      )
     fi
 }
 
@@ -156,9 +157,10 @@ export_contexts() {
       if [[ "${#cfgs[@]}" -eq 0 ]]; then
         $KUBECTL config view --flatten --minify --context="$x" > "$tmpcfg"
       else
-        IFS=$':\n\t'
-        KUBECONFIG="${cfgs[*]}" $KUBECTL config view --flatten --minify --context="$x" > "$tmpcfg"
-        IFS=$' \n\t'
+        (
+          IFS=$':\n\t'
+          KUBECONFIG="${cfgs[*]}" $KUBECTL config view --flatten --minify --context="$x" > "$tmpcfg"
+        )
       fi
     done
 
