@@ -106,13 +106,11 @@ import_ctx() {
           shift
           ;;
         -i | --stdin)
-          if [[ -p /dev/stdin ]]; then
-            tmpinputcfg=$(mktemp konfig_input_XXXXXX)
-            TMPFILES+=( "$tmpinputcfg" )
-            tmpcfgs+=( "$tmpinputcfg" )
-            cat - > "$tmpinputcfg"
-            shift
-          fi
+          tmpinputcfg=$(mktemp konfig_input_XXXXXX)
+          TMPFILES+=( "$tmpinputcfg" )
+          tmpcfgs+=( "$tmpinputcfg" )
+          cat - > "$tmpinputcfg"
+          shift
           ;;
         -*)
           error "unrecognized flag \"$1\""
